@@ -29,9 +29,9 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
-  myRooms:{      
-    type: []
-  }
+  myRooms: {
+    type: [],
+  },
 });
 
 //static signup method
@@ -78,12 +78,12 @@ userSchema.statics.signup = async function (
 
 // static login method
 userSchema.statics.login = async function (email, password) {
-  if (!email || !password) {
-    throw Error("All fields must be field");
-  }
   const user = await this.findOne({ email });
   if (!user) {
-    throw Error("Incorrect email");
+    throw Error("Invalid login credentials");
+  }
+  if (!user.isVerified) {
+    throw Error("Please confirm your email to login");
   }
 
   const match = await bcrypt.compare(password, user.password);
@@ -91,10 +91,6 @@ userSchema.statics.login = async function (email, password) {
   if (!match) {
     throw Error("Invalid login credentials");
   }
-  if(!user.isVerified){
-    throw Error("Please confirm your email to login");
-  }
-
   return user;
 };
 

@@ -17,8 +17,7 @@ const loginUser = async (req, res) => {
 
   try {
     const user = await userModel.login(email, password);
-    // console.log(user.email,user.password,user.usertype);
-
+    
     //create a token
     const name = user.username;
     const token = createToken(user._id);
@@ -35,10 +34,10 @@ const loginUser = async (req, res) => {
 };
 
 //logout user
-const logoutUser = (req,res) =>{
-  res.cookie("jwt",'',{maxAge : 1});
-  res.redirect("/")
-}
+const logoutUser = (req, res) => {
+  res.cookie("jwt", "", { maxAge: 1 });
+  res.redirect("/");
+};
 
 //signup user
 const signupUser = async (req, res) => {
