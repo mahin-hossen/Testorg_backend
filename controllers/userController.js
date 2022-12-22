@@ -3,8 +3,9 @@ const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
 const { models } = require("mongoose");
 require("dotenv").config();
-// const hostURL = "http://localhost:${process.env.PORT}"
-const hostURL = "https://testorg-backend.onrender.com";
+// const hostURL = `http://localhost:${process.env.PORT}`;
+const hostURL = `https://excited-foal-raincoat.cyclic.app`;
+// const hostURL = "https://testorg-backend.onrender.com";
 
 const maxAge = 60 * 60 * 24 * 3; //3day
 const createToken = (_id) => {
@@ -17,7 +18,7 @@ const loginUser = async (req, res) => {
 
   try {
     const user = await userModel.login(email, password);
-    
+
     //create a token
     const name = user.username;
     const token = createToken(user._id);
@@ -25,8 +26,6 @@ const loginUser = async (req, res) => {
     // jwt.verify(token,process.env.SECRET,(err,decodedToken)=>{//await
     //   console.log(decodedToken._id);
     // })
-
-    res.cookie("jwt", token, { httpOnly: true, maxAge: maxAge * 1000 });
     res.status(201).json({ name, email, token });
   } catch (error) {
     res.status(400).json({ error: error.message });
@@ -35,7 +34,6 @@ const loginUser = async (req, res) => {
 
 //logout user
 const logoutUser = (req, res) => {
-  res.cookie("jwt", "", { maxAge: 1 });
   res.redirect("/");
 };
 
@@ -72,7 +70,8 @@ const verifyUser = async (req, res) => {
     const { _id } = jwt.verify(req.params.token, process.env.SECRET);
     await userModel.findOneAndUpdate({ _id }, { isVerified: true });
 
-    res.status(201).json({ msg: "Your email is verified successfully" });
+    // res.status(201).json({ msg: "Your email is verified successfully" });
+    res.redirect(`https://${process.env.FRONTEND_URL}/Login`);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
