@@ -1,11 +1,14 @@
 const { Router } = require("express");
 const router = Router();
 
-//controllers
-const { roomPost, myroomGet, viewRoom} = require("../controllers/roomController");
+//middleware
+const {requireAuth} = require("../middlewares/authJWT")
 
-router.post("/add-room",roomPost);
-router.get("/my-room",myroomGet);
-router.get("/view-room",viewRoom)
+//controllers
+const { roomPost, roomList, viewRoom} = require("../controllers/roomController");
+
+router.post("/add-room",requireAuth, roomPost);
+router.get("/my-room",requireAuth, roomList);///done
+router.get("/view-room",requireAuth, viewRoom)
 
 module.exports = router;

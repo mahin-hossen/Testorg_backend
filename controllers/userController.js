@@ -26,6 +26,7 @@ const loginUser = async (req, res) => {
     // jwt.verify(token,process.env.SECRET,(err,decodedToken)=>{//await
     //   console.log(decodedToken._id);
     // })
+    res.cookie("jwt", token, { httpOnly: true, maxAge: maxAge * 1000 });//temporary
     res.status(201).json({ name, email, token });
   } catch (error) {
     res.status(400).json({ error: error.message });

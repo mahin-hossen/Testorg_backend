@@ -41,16 +41,22 @@ roomSchema.statics.createRoom = async function (userDoc,room){
         myRooms:
         {
             "roomID" :newRoom._id,
+            "teacherName" : userDoc.username,
             "startTime" : room.startTime,
             "endTime" : room.endTime,
             "CourseName" : room.courseName,
-            "CreatedAt" : room.createdAt
-        }
-    }})
+            "CreatedAt" : room.createdAt,
+            "participated" : false,
+            "totalMarks":0
+        },
+        
+    },$inc:{totalRooms:1}})//increment totalrooms by 1
     return result.acknowledged
 }
 
 roomSchema.statics.myRoom = async function(id){
+    // console.log(id)
+    // console.log("here")
     const roomData = await userModel.find({_id:id},{myRooms:1})
     // console.log(roomData)
     return roomData;

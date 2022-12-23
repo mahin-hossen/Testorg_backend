@@ -31,7 +31,13 @@ const userSchema = new mongoose.Schema({
   },
   myRooms: {
     type: [],
+    totalMarks:0,
+    participated:false
   },
+  totalRooms:{
+    type:Number,
+    default:0
+  }
 });
 
 //static signup method
