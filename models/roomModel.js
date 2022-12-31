@@ -3,28 +3,15 @@ const Schema = mongoose.Schema;
 const userModel = require("./userModel")
 
 const roomSchema = new mongoose.Schema({
-    teacherName:{
-        type:String
-    },
-    teacherId:{
-        type: mongoose.Schema.Types.ObjectId
-    },
-    courseName:{
-        type: String
-    },
-    questions:{
-        type:[]
-    },
-    student:{
-        type:[]
-    },
-    startTime : {
-        type: Date
-    },
-    endTime : {
-        type: Date
-    },
+    teacherName:{type:String},
+    teacherId:{type: mongoose.Schema.Types.ObjectId},
+    courseName:{type: String},
+    questions:{type:[]},
+    student:{type:[]},
+    startTime : {type: Date},
+    endTime : {type: Date},
     createdAt : {type: Date},
+    totalMarks : {type: Number}
 })
 
 roomSchema.statics.createRoom = async function (userDoc,room){
@@ -35,7 +22,8 @@ roomSchema.statics.createRoom = async function (userDoc,room){
         questions : room.question,
         startTime : room.startTime,
         endTime : room.endTime,
-        createdAt : room.createdAt   
+        createdAt : room.createdAt,
+        totalMarks : room.totalMarks   
     })
     const result = await userModel.updateOne({_id:userDoc._id},{$push : {
         myRooms:
@@ -47,7 +35,8 @@ roomSchema.statics.createRoom = async function (userDoc,room){
             "CourseName" : room.courseName,
             "CreatedAt" : room.createdAt,
             "participated" : false,
-            "totalMarks":0
+            "totalMarks":room.totalMarks,
+            "gotMarks":0
         },
         
     },$inc:{totalRooms:1}})//increment totalrooms by 1
