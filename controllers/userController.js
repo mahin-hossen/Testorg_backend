@@ -20,14 +20,16 @@ const loginUser = async (req, res) => {
     const user = await userModel.login(email, password);
 
     //create a token
+    console.log(user)
     const name = user.username;
+    const usertype = user.usertype;
     const token = createToken(user._id);
 
     // jwt.verify(token,process.env.SECRET,(err,decodedToken)=>{//await
     //   console.log(decodedToken._id);
     // })
     res.cookie("jwt", token, { httpOnly: true, maxAge: maxAge * 1000 });//temporary
-    res.status(201).json({ name, email, token });
+    res.status(201).json({ name, email, token, usertype });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
