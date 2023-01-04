@@ -74,7 +74,8 @@ const verifyUser = async (req, res) => {
     await userModel.findOneAndUpdate({ _id }, { isVerified: true });
 
     // res.status(201).json({ msg: "Your email is verified successfully" });
-    res.redirect(`https://${process.env.FRONTEND_URL}/Login`);
+    // res.redirect(`https://${process.env.FRONTEND_URL}`);
+    res.redirect(`http://localhost:3000/home`);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -100,6 +101,7 @@ const resendMail = async (req, res) => {
 
 // send mail
 const sendMail = (url, email) => {
+  console.log
   const transporter = nodemailer.createTransport({
     service: "Gmail",
     auth: {
