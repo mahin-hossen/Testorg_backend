@@ -40,7 +40,7 @@ roomSchema.statics.createRoom = async function (userDoc,room){
         },
         
     },$inc:{totalRooms:1}})//increment totalrooms by 1
-    return result.acknowledged
+    return [result.acknowledged,newRoom._id.toString()]
 }
 
 roomSchema.statics.myRoom = async function(id){

@@ -53,10 +53,10 @@ const roomPost = async (req,res) => {
         {
             res.status(400).json({msg : "Unauthorized access"})////unauthorized access
         }
-        else{
+        else{            
             const response = await roomModel.createRoom(userDoc,req.body)
-            if(response)
-                res.status(201).json({msg : "Questions Created Successfully"})
+            if(response[0])
+                res.status(201).json({roomCode:response[1]})
             else
                 res.status(500).json({err : "Question Creation failed"})
         }
