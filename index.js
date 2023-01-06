@@ -17,8 +17,8 @@ app.use(cors({ origin: true, credentials: true }))
 app.use(cookieParser());
 
 app.use((req, res, next) => {
-  console.log(req.path, req.method, req.cookies);
-  // console.log(req.body)
+  console.log(req.path, req.method);
+  console.log("req.body", req.body)
   next();
 });
 

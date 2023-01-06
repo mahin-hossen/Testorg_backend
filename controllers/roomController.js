@@ -47,38 +47,45 @@ const roomModel = require("../models/roomModel")
 //         }
 //     })
 // }
-const roomPost = async (req,res) => {
+const addRoomController = async (req,res) => {
     userModel.findById(res.locals.userID, async function(err,userDoc){
-        if(err)//doesnt exists;
-        {
-            res.status(400).json({msg : "Unauthorized access"})////unauthorized access
-        }
-        else{            
-            const response = await roomModel.createRoom(userDoc,req.body)
-            if(response[0])
-                res.status(201).json({roomCode:response[1]})
-            else
-                res.status(500).json({err : "Question Creation failed"})
-        }
-    })
-    
+        console.log(userDoc)
+        const response = await roomModel.createRoom(userDoc,req.body)
+        if(response[0])
+            res.status(201).json({roomCode:response[1]})
+        else
+            res.status(500).json({err : "Question Creation failed"})
+    })    
 }
-const roomList = async (req,res) =>{
+const roomListController = async (req,res) =>{
     const response = await roomModel.myRoom(res.locals.userID);
     res.status(200).json(response)
 }
 
-const viewRoom = async (req,res) =>{
+const viewRoomController = async (req,res) =>{
     roomModel.findById(req.body.roomID, async function(err,userDoc){
         if(err)
         {
             res.status(400).json({msg : "Room Doesnt exist"})
         }
         else{
-            console.log(userDoc)
+            console.log(userDoc.questions)
             res.status(200).json(userDoc);
         }
     })    
 }
 
-module.exports = {roomPost, roomList, viewRoom}
+const roomJoinController = async (req,res) =>{
+    const roomID = req.body.roomCode;
+    const userID = res.locals.userID;
+
+    //updating users myroom
+    const room = await roomModel.roomInfo(req.body.roomCode);
+    // console.log("room",room)
+    const student = await userModel.findById(res.locals.userID)
+    // console.log(student)
+    //room er student er bitore
+    //user er myroom
+}
+
+module.exports = {addRoomController, roomListController, viewRoomController, roomJoinController}

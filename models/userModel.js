@@ -63,7 +63,6 @@ userSchema.statics.signup = async function (
   }
   const exist = await this.findOne({ email });
   if (exist) {
-    // console.log("exist");
     throw Error("Email already in use");
   }
 
@@ -108,6 +107,13 @@ userSchema.statics.verification = async function (email, password) {
   }
   return user;
 };
+// userSchema.statics.userExists = async function(id)
+// {
+//   console.log("dukse")
+//   const exist = await this.find({_id:id})
+//   console.log("exist",exist)
+//   return exist
+// }
 module.exports = mongoose.model("User", userSchema);
 // const userModel = mongoose.model("User", userSchema);
 // module.exports = userModel;

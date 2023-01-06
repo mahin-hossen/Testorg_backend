@@ -5,10 +5,11 @@ const router = Router();
 const {requireAuth} = require("../middlewares/authJWT")
 
 //controllers
-const { roomPost, roomList, viewRoom} = require("../controllers/roomController");
+const { addRoomController, roomListController, viewRoomController, roomJoinController} = require("../controllers/roomController");
 
-router.post("/add-room",requireAuth, roomPost);
-router.get("/my-room",requireAuth, roomList);///done
-router.get("/view-room",requireAuth, viewRoom)
+router.post("/add-room",requireAuth, addRoomController);
+router.get("/my-room",requireAuth, roomListController);
+router.get("/view-room",requireAuth, viewRoomController);
+router.post("/join-room",requireAuth,roomJoinController);
 
 module.exports = router;
