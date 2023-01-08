@@ -1,52 +1,7 @@
-// const roomWorking = async(req,res) =>{
-//     console.log(req.path, req.method, req.cookies);
-//     res.json({msg : "room working fine"});
-// }
-// const q_form = 
-// [
-//     {
-//         "q_no": 1,
-//         "q_type": "mcq",
-//         "question": "how are you?",
-//         "correct_answer": "fine",
-//         "options": ["fine","good","bad"
-//          ],
-//         "marks": 3
-//      },
-//      {
-//         "q_no": 2,
-//         "q_type": "mcq",
-//         "question": "how are you?",
-//         "correct_answer": "fine",
-//         "options": ["fine","good","bad"
-//          ],
-//         "marks": 3
-//      },
-//         {
-//         "q_no": 3,
-//         "q_type": "mcq",
-//         "question": "how are you?",
-//         "correct_answer": "fine",
-//         "options": ["fine","good","bad"
-//          ],
-//         "marks": 3
-//      }
-// ]
-
 const jwt = require("jsonwebtoken");
 const userModel = require("../models/userModel")
 const roomModel = require("../models/roomModel")
 
-// const userVerified = (token) =>{
-//     jwt.verify(token,process.env.secret,async (err,decodedToken) =>{
-//         if(err){
-//             return id = "";//unauthorized access
-//         }
-//         else{
-//             return id = decodedToken._id;
-//         }
-//     })
-// }
 const addRoomController = async (req,res) => {
     userModel.findById(res.locals.userID, async function(err,userDoc){
         console.log(userDoc)
@@ -79,13 +34,22 @@ const roomJoinController = async (req,res) =>{
     const roomID = req.body.roomCode;
     const userID = res.locals.userID;
 
-    //updating users myroom
+    //getting roomInfo
     const room = await roomModel.roomInfo(req.body.roomCode);
-    // console.log("room",room)
-    const student = await userModel.findById(res.locals.userID)
-    // console.log(student)
-    //room er student er bitore
-    //user er myroom
+    //getting userInfo
+    const user = await userModel.userInfo(res.locals.userID);  
+
+    if(!room)   res.json({msg:"Room Doesn't exists!!!"})
+    else
+    {
+        //updating users myroom
+        const updateMyRooms = await roomModel.addToMyRoom(userID,room,roomID);
+
+        //inserting as student in roomModel
+        const asStudent = await roomModel.insertAsStudent(user,room,roomID);
+
+        if(updateMyRooms && asStudent) res.status(301).json({msg:"You have Successfully joined!!!"})        
+    }
 }
 
 module.exports = {addRoomController, roomListController, viewRoomController, roomJoinController}

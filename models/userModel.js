@@ -107,6 +107,11 @@ userSchema.statics.verification = async function (email, password) {
   }
   return user;
 };
+userSchema.statics.userInfo = async function(userID)
+{
+  const user = await this.findOne({_id:userID});
+  return user;
+}
 // userSchema.statics.userExists = async function(id)
 // {
 //   console.log("dukse")

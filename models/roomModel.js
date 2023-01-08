@@ -52,20 +52,49 @@ roomSchema.statics.myRoom = async function(id){
 
 roomSchema.statics.roomInfo = async function(roomID)
 {
-    const room = await this.findById(roomID);
+    const room = await this.findOne({_id:roomID});
     return room;
 }
 
-roomSchema.statics.insertAsStudent = async function(roomID,userID)
+roomSchema.statics.addToMyRoom = async function(userID,room,roomID)
 {
-    const result = await this.updateOne({_id:roomID},{$push : {
+    //If already joined
+    const roomExist = await userModel.findOne().elemMatch("myRooms", {"roomID":mongoose.Types.ObjectId(roomID)})
+    if(roomExist) throw Error("You have already joined this room");//change
+    else
+    {
+        //updating myrooms array for user
+        const updateMyRooms = await userModel.updateOne({_id:userID},{$push : {
+            myRooms:
+            {
+                "roomID" :room._id,
+                "teacherName" : room.teacherName,
+                "startTime" : room.startTime,
+                "endTime" : room.endTime,
+                "CourseName" : room.courseName,
+                "CreatedAt" : room.createdAt,
+                "participated" : false,
+                "totalMarks":room.totalMarks,
+                "gotMarks":0
+            }
+            
+        }})
+        return updateMyRooms.acknowledged;
+    }    
+}
+roomSchema.statics.insertAsStudent = async function(user,room,roomID)
+{  
+    const updateStudents = await this.updateOne({_id:roomID},{$push : {
         student:
-        {            
-            "student" : userID,
+        {
+            "studentName" : user.username,
+            "studentID" : user._id,
+            "participated" : false,
+            "totalMarks":room.totalMarks,
+            "gotMarks":0
+        }        
+    }})
+    return updateStudents.acknowledged;
 
-        },
-        
-    },$inc:{totalRooms:1}})//increment totalrooms by 1
-    return [result.acknowledged,newRoom._id.toString()]
 }
 module.exports = mongoose.model("Room",roomSchema);
