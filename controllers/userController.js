@@ -42,7 +42,6 @@ const logoutUser = (req, res) => {
 
 //signup user
 const signupUser = async (req, res) => {
-  console.log(req.body);
   const { isVerified, usertype, username, email, password } = req.body;
   try {
     const user = await userModel.signup(
@@ -74,7 +73,6 @@ const verifyUser = async (req, res) => {
     await userModel.findOneAndUpdate({ _id }, { isVerified: true });
 
     // res.status(201).json({ msg: "Your email is verified successfully" });
-    console.log("here")
     res.redirect(`https://${process.env.FRONTEND_URL}`);
   } catch (error) {
     res.status(400).json({ error: error.message });
@@ -101,8 +99,6 @@ const resendMail = async (req, res) => {
 
 // send mail
 const sendMail = (url, email) => {
-  console.log(url);
-  console.log(email);
   const transporter = nodemailer.createTransport({
     service: "Gmail",
     auth: {

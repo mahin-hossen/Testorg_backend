@@ -9,7 +9,7 @@ const requireAuth = async (req, res, next) => {
     jwt.verify(token, process.env.SECRET,(err,decodedToken)=>{
         if(err){
             console.log("token not valid")
-            res.json({error:"token not valid"})
+            res.status(400).json({error:"token not valid"})
         } 
         else{
             console.log("decodedToken",decodedToken)
@@ -21,7 +21,7 @@ const requireAuth = async (req, res, next) => {
   }
   else{
     console.log("no token")
-    res.json({msg:"token invalid"})
+    res.status(400).json({error:"token invalid"})
   }
 };
 

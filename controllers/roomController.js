@@ -9,7 +9,7 @@ const addRoomController = async (req,res) => {
         if(response[0])
             res.status(201).json({roomCode:response[1]})
         else
-            res.status(500).json({err : "Question Creation failed"})
+            res.status(400).json({error : "Question Creation failed"})
     })    
 }
 const roomListController = async (req,res) =>{
@@ -21,7 +21,7 @@ const viewRoomController = async (req,res) =>{
     roomModel.findById(req.body.roomID, async function(err,userDoc){
         if(err)
         {
-            res.status(400).json({msg : "Room Doesnt exist"})
+            res.status(400).json({error : "Room Doesnt exist"})
         }
         else{
             console.log(userDoc.questions)
@@ -39,7 +39,7 @@ const roomJoinController = async (req,res) =>{
     //getting userInfo
     const user = await userModel.userInfo(res.locals.userID);  
 
-    if(!room)   res.json({msg:"Room Doesn't exists!!!"})
+    if(!room)   res.json({error:"Room Doesn't exists!!!"})
     else
     {
         //updating users myroom
