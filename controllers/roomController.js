@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
 const userModel = require("../models/userModel")
 const roomModel = require("../models/roomModel")
+const ObjectId = require("mongoose").Types.ObjectId
 
 const addRoomController = async (req,res) => {
     try
@@ -33,16 +34,21 @@ const roomListController = async (req,res) =>{
 const viewRoomController = async (req,res) =>{
     try
     {
-        roomModel.findById(req.body.roomID, async function(err,userDoc){
-            if(err)
-            {
-                res.status(400).json({error : "Room Doesnt exist"})
-            }
-            else{
-                console.log(userDoc.questions)
-                res.status(200).json(userDoc);
-            }
-        }) 
+        if(ObjectId.isValid(req.body.roomID))
+        {
+            roomModel.findById(req.body.roomID, async function(err,userDoc){
+                if(err)
+                {
+                    res.status(400).json({error : "Room Doesnt exist!!!"})
+                }
+                else{
+                    console.log(userDoc.questions)
+                    res.status(200).json(userDoc);
+                }
+            })
+        }
+        else res.status(400).json({error : "Room Doesnt exist!!!"})
+         
     }catch(error)
     {
         res.status(400).json({ error: error.message });

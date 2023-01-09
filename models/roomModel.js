@@ -52,8 +52,13 @@ roomSchema.statics.myRoom = async function(id){
 
 roomSchema.statics.roomInfo = async function(roomID)
 {
-    const room = await this.findOne({_id:roomID});
-    return room;
+    if(mongoose.Types.ObjectId.isValid(roomID))
+    {
+        const room = await this.findOne({_id:roomID});
+        return room;
+    }
+    else throw Error("Room Doesn't exists!!!")
+
 }
 
 roomSchema.statics.addToMyRoom = async function(userID,room,roomID)
