@@ -20,7 +20,7 @@ const loginUser = async (req, res) => {
     const user = await userModel.login(email, password);
 
     //create a token
-    console.log(user)
+    console.log(user);
     const name = user.username;
     const usertype = user.usertype;
     const token = createToken(user._id);
@@ -28,7 +28,7 @@ const loginUser = async (req, res) => {
     // jwt.verify(token,process.env.SECRET,(err,decodedToken)=>{//await
     //   console.log(decodedToken._id);
     // })
-    res.cookie("jwt", token, { httpOnly: true, maxAge: maxAge * 1000 });//temporary
+    res.cookie("jwt", token, { httpOnly: true, maxAge: maxAge * 1000 }); //temporary
     res.status(201).json({ name, email, token, usertype });
   } catch (error) {
     res.status(400).json({ error: error.message });
@@ -74,8 +74,8 @@ const verifyUser = async (req, res) => {
     await userModel.findOneAndUpdate({ _id }, { isVerified: true });
 
     // res.status(201).json({ msg: "Your email is verified successfully" });
-    // res.redirect(`https://${process.env.FRONTEND_URL}`);
-    res.redirect(`http://localhost:3000/home`);
+    console.log("here")
+    res.redirect(`https://${process.env.FRONTEND_URL}`);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -101,7 +101,8 @@ const resendMail = async (req, res) => {
 
 // send mail
 const sendMail = (url, email) => {
-  console.log
+  console.log(url);
+  console.log(email);
   const transporter = nodemailer.createTransport({
     service: "Gmail",
     auth: {
