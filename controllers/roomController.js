@@ -60,7 +60,7 @@ const roomJoinController = async (req,res) =>{
         //getting userInfo
         const user = await userModel.userInfo(res.locals.userID);  
 
-        if(!room)   res.json({error:"Room Doesn't exists!!!"})
+        if(!room)   res.status(400).json({error:"Room Doesn't exists!!!"})
         else
         {
             //updating users myroom
