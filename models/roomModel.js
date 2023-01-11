@@ -64,7 +64,8 @@ roomSchema.statics.roomInfo = async function(roomID)
 roomSchema.statics.addToMyRoom = async function(userID,room,roomID)
 {
     //If already joined
-    const roomExist = await userModel.findOne().elemMatch("myRooms", {"roomID":mongoose.Types.ObjectId(roomID)})
+    const roomExist = await userModel.findOne().elemMatch("myRooms", {"roomID":mongoose.Types.ObjectId(roomID),"_id":mongoose.Types.ObjectId(userID)})
+    // console.log(roomExist)
     if(roomExist) throw Error("You have already joined this room");//change
     else
     {
@@ -101,5 +102,19 @@ roomSchema.statics.insertAsStudent = async function(user,room,roomID)
     }})
     return updateStudents.acknowledged;
 
+}
+roomSchema.statics.updateResult = async function(userID,roomID,ans)
+{
+    let negMarks = 0, marks = 0;
+    ans.forEach(qid => {
+        console.log(qid)
+        if(qid.correct_answer===qid.student_answer)
+        {
+            marks+=qid.marks
+        }
+        else negMarks+=qid.marks
+    });
+    console.log(negMarks,marks);
+    return 1;
 }
 module.exports = mongoose.model("Room",roomSchema);

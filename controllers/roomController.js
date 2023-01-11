@@ -60,7 +60,7 @@ const roomJoinController = async (req,res) =>{
     try{
         const roomID = req.body.roomCode;
         const userID = res.locals.userID;
-
+        // console.log(roomID, userID)
         //getting roomInfo
         const room = await roomModel.roomInfo(req.body.roomCode);
         //getting userInfo
@@ -84,4 +84,13 @@ const roomJoinController = async (req,res) =>{
     
 }
 
-module.exports = {addRoomController, roomListController, viewRoomController, roomJoinController}
+const submitResultController = async(req,res) =>{
+    try{
+        const updateResult = await roomModel.updateResult(res.locals.userID,req.body.roomID,req.body.studentAnswer)
+    }catch(error)
+    {
+        res.status(400).json({error:error.message})
+    }
+}
+
+module.exports = {addRoomController, roomListController, viewRoomController, roomJoinController, submitResultController}

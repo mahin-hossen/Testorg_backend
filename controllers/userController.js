@@ -7,7 +7,7 @@ require("dotenv").config();
 const hostURL = `https://excited-foal-raincoat.cyclic.app`;
 // const hostURL = "https://testorg-backend.onrender.com";
 
-const maxAge = 60 * 60 * 24 * 3; //3day
+const maxAge = 60 * 60 * 24 * 15; //15day
 const createToken = (_id) => {
   return jwt.sign({ _id }, process.env.SECRET, { expiresIn: maxAge });
 };
