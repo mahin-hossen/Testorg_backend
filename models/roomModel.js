@@ -6,7 +6,14 @@ const roomSchema = new mongoose.Schema({
     teacherName:{type:String},
     teacherId:{type: mongoose.Schema.Types.ObjectId},
     courseName:{type: String},
-    questions:{type:[]},
+    questions:[{
+        question:String,
+        marks:Number,
+        correct_answer:String,
+        options:[],
+        question_type:String,
+        q_id:Number    
+    }],
     student:{type:[]},
     startTime : {type: Date},
     endTime : {type: Date},
@@ -21,7 +28,7 @@ roomSchema.statics.createRoom = async function (userDoc,room){
         teacherId : userDoc._id,
         teacherName : userDoc.username,
         courseName : room.courseName,
-        questions : room.question,
+        questions : room.questions,
         startTime : room.startTime,
         endTime : room.endTime,
         createdAt : room.createdAt,
@@ -105,16 +112,17 @@ roomSchema.statics.insertAsStudent = async function(user,room,roomID)
 }
 roomSchema.statics.updateResult = async function(userID,roomID,ans)
 {
-    let negMarks = 0, marks = 0;
+    let negMarks = 0;
+    let marks = 0;
     ans.forEach(qid => {
         console.log(qid)
         if(qid.correct_answer===qid.student_answer)
         {
-            marks+=qid.marks
+            marks+=Number(qid.marks)
         }
-        else negMarks+=qid.marks
+        else negMarks+=Number(qid.marks)
     });
-    console.log(negMarks,marks);
+
     return 1;
 }
 module.exports = mongoose.model("Room",roomSchema);
