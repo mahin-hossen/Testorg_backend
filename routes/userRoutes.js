@@ -18,7 +18,7 @@ router.post("/login", loginUser);
 router.get("/logout",logoutUser);
 //mail confirmation
 router.get("/confirmation/:token", verifyUser);
-router.post("/confirmation/resend", resendMail);
+router.get("/resend-mail", resendMail);
 //password recovery
 
 module.exports = router;
