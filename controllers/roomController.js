@@ -12,7 +12,7 @@ const addRoomController = async (req,res) => {
             if(response[0])
                 res.status(201).json({roomCode:response[1]})
             else
-                res.status(400).json({error : "Question Creation failed"})
+                throw Error("Question Creation failed")
         })  
     }catch(error)
     {
@@ -39,7 +39,7 @@ const viewRoomController = async (req,res) =>{
             roomModel.findById(req.body.roomID, async function(err,userDoc){
                 if(err)
                 {
-                    res.status(400).json({error : "Room Doesnt exist!!!"})
+                    throw Error("Room Doesnt exist!!!")
                 }
                 else{
                     console.log(userDoc.questions)
@@ -47,7 +47,7 @@ const viewRoomController = async (req,res) =>{
                 }
             })
         }
-        else res.status(400).json({error : "Room Doesnt exist!!!"})
+        else throw Error("Room Doesnt exist!!!")
          
     }catch(error)
     {
@@ -60,13 +60,18 @@ const roomJoinController = async (req,res) =>{
     try{
         const roomID = req.body.roomCode;
         const userID = res.locals.userID;
-        // console.log(roomID, userID)
+        console.log(roomID, userID)
         //getting roomInfo
         const room = await roomModel.roomInfo(req.body.roomCode);
         //getting userInfo
         const user = await userModel.userInfo(res.locals.userID);  
-
-        if(!room)   res.status(400).json({error:"Room Doesn't exists!!!"})
+        // console.log("user",user)
+        // console.log("room", room);
+        if(userID===room.teacherId.toString())
+        {   
+            throw Error("You are teacher of this room")
+        } 
+        if(!room)   throw Error("Room Doesn't exists!!!")
         else
         {
             //updating users myroom

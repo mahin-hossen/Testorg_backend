@@ -61,7 +61,8 @@ roomSchema.statics.roomInfo = async function(roomID)
 {
     if(mongoose.Types.ObjectId.isValid(roomID))
     {
-        const room = await this.findOne({_id:roomID});
+        // const room = await this.findOne({_id:roomID});
+        const room = await this.findOne({_id:mongoose.Types.ObjectId(roomID)});
         return room;
     }
     else throw Error("Room Doesn't exists!!!")
