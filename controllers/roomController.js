@@ -69,7 +69,7 @@ const roomJoinController = async (req,res) =>{
         // console.log("room", room);
         if(userID===room.teacherId.toString())
         {   
-            throw Error("You are teacher of this room")
+            throw Error("You are already Teacher of this room")
         } 
         if(!room)   throw Error("Room Doesn't exists!!!")
         else
@@ -80,7 +80,7 @@ const roomJoinController = async (req,res) =>{
             //inserting as student in roomModel
             const asStudent = await roomModel.insertAsStudent(user,room,roomID);
 
-            if(updateMyRooms && asStudent) res.status(301).json({msg:"You have Successfully joined!!!"})        
+            if(updateMyRooms && asStudent) res.status(201).json({msg:"You have Successfully joined!!!"})        
         }
     }catch(error)
     {
