@@ -19,7 +19,7 @@ app.use(cookieParser());
 
 app.use((req, res, next) => {
   console.log(req.path, req.method);
-  console.log("req.body", req.body)
+  // console.log("req.body", req.body)
   next();
 });
 

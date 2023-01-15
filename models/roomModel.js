@@ -6,6 +6,7 @@ const roomSchema = new mongoose.Schema({
     teacherName:{type:String},
     teacherId:{type: mongoose.Schema.Types.ObjectId},
     courseName:{type: String},
+    negMarks:{type:Boolean},
     questions:[{
         question:String,
         marks:Number,
@@ -29,6 +30,7 @@ roomSchema.statics.createRoom = async function (userDoc,room){
         teacherName : userDoc.username,
         courseName : room.courseName,
         questions : room.questions,
+        negMarks : room.negMarks,
         startTime : room.startTime,
         endTime : room.endTime,
         createdAt : room.createdAt,
@@ -72,8 +74,9 @@ roomSchema.statics.roomInfo = async function(roomID)
 roomSchema.statics.addToMyRoom = async function(userID,room,roomID)
 {
     //If already joined
-    const roomExist = await userModel.findOne().elemMatch("myRooms", {"roomID":mongoose.Types.ObjectId(roomID),"_id":mongoose.Types.ObjectId(userID)})
-    // console.log(roomExist)
+    const roomExist = await userModel.findOne({_id:userID}).elemMatch("myRooms",{"roomID":mongoose.Types.ObjectId(roomID)})   
+    // console.log("roomExist",roomExist)
+
     if(roomExist) throw Error("You have already joined this room");//change
     else
     {
@@ -92,7 +95,8 @@ roomSchema.statics.addToMyRoom = async function(userID,room,roomID)
                 "gotMarks":0
             }
             
-        }})
+        },$inc:{totalRooms:1}//increment totalrooms by 1
+    })
         return updateMyRooms.acknowledged;
     }    
 }
@@ -111,19 +115,54 @@ roomSchema.statics.insertAsStudent = async function(user,room,roomID)
     return updateStudents.acknowledged;
 
 }
-roomSchema.statics.updateResult = async function(userID,roomID,ans)
+roomSchema.statics.calculateResult = async function(userID,roomID,neg,ans)
 {
     let negMarks = 0;
     let marks = 0;
+    let result = 0;
     ans.forEach(qid => {
-        console.log(qid)
         if(qid.correct_answer===qid.student_answer)
         {
             marks+=Number(qid.marks)
         }
         else negMarks+=Number(qid.marks)
     });
+    if(neg)
+    {
+        result = Math.max(0,marks-negMarks)        
+    }
+    else result = marks;
+    return result;
+}
+roomSchema.statics.updateResult = async function(userID,roomID,result)
+{
+    //in room collection's student array
+    console.log("userID",userID,"roomID",roomID)
 
-    return 1;
+    const updateUserCollection = await userModel.updateOne({
+        _id:userID,
+        "myRooms.roomID":mongoose.Types.ObjectId(roomID)
+        },
+        {
+            $set:{"myRooms.$.gotMarks" : result}
+        }
+    )
+
+    const updateRoomCollection = await this.updateOne({
+        _id:roomID,
+        "student.studentID":mongoose.Types.ObjectId(userID)
+        },
+        {
+            $set:{"student.$.gotMarks" : result}
+        }
+    )
+
+
+    if(updateUserCollection.acknowledged && updateRoomCollection.acknowledged)
+    {
+        return true;
+    }
+    return false;
+
 }
 module.exports = mongoose.model("Room",roomSchema);

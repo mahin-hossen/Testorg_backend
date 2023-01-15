@@ -60,13 +60,11 @@ const roomJoinController = async (req,res) =>{
     try{
         const roomID = req.body.roomCode;
         const userID = res.locals.userID;
-        console.log(roomID, userID)
+        console.log("roomID",roomID,"userID", userID)
         //getting roomInfo
         const room = await roomModel.roomInfo(req.body.roomCode);
         //getting userInfo
         const user = await userModel.userInfo(res.locals.userID);  
-        // console.log("user",user)
-        // console.log("room", room);
         if(userID===room.teacherId.toString())
         {   
             throw Error("You are already Teacher of this room")
@@ -91,7 +89,18 @@ const roomJoinController = async (req,res) =>{
 
 const submitResultController = async(req,res) =>{
     try{
-        const updateResult = await roomModel.updateResult(res.locals.userID,req.body.roomID,req.body.studentAnswer)
+        const userID = res.locals.userID
+        const roomID = req.body.roomID
+        const negMarks = req.body.negMarks
+        const ans = req.body.studentAnswer
+
+        const result = await roomModel.calculateResult(userID,roomID,negMarks,ans)
+        const confirmation = await roomModel.updateResult(userID,roomID,result)
+        if(confirmation)
+        {
+            res.status(201).json({msg:"Result Submitted Successfully"})
+        }
+        else throw Error ("Some error Occured on our end")
     }catch(error)
     {
         res.status(400).json({error:error.message})
