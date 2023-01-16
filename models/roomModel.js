@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { update } = require("./userModel");
 const Schema = mongoose.Schema;
 const userModel = require("./userModel")
 
@@ -16,6 +17,7 @@ const roomSchema = new mongoose.Schema({
         q_id:Number    
     }],
     student:{type:[]},
+    totalStudent:{type:Number},
     startTime : {type: Date},
     endTime : {type: Date},
     createdAt : {type: Date},
@@ -34,7 +36,8 @@ roomSchema.statics.createRoom = async function (userDoc,room){
         startTime : room.startTime,
         endTime : room.endTime,
         createdAt : room.createdAt,
-        totalMarks : room.totalMarks   
+        totalMarks : room.totalMarks,
+        totalStudent:0   
     })
     const result = await userModel.updateOne({_id:userDoc._id},{$push : {
         myRooms:
@@ -110,8 +113,9 @@ roomSchema.statics.insertAsStudent = async function(user,room,roomID)
             "participated" : false,
             "totalMarks":room.totalMarks,
             "gotMarks":0
-        }        
+        },$inc:{totalStudent:1}        
     }})
+    console.log(updateStudents)
     return updateStudents.acknowledged;
 
 }
@@ -144,7 +148,10 @@ roomSchema.statics.updateResult = async function(userID,roomID,result)
         "myRooms.roomID":mongoose.Types.ObjectId(roomID)
         },
         {
-            $set:{"myRooms.$.gotMarks" : result}
+            $set:{
+                "myRooms.$.gotMarks" : result,
+                "myRooms.$.participated" : true
+                }
         }
     )
 
@@ -153,7 +160,10 @@ roomSchema.statics.updateResult = async function(userID,roomID,result)
         "student.studentID":mongoose.Types.ObjectId(userID)
         },
         {
-            $set:{"student.$.gotMarks" : result}
+            $set:{
+                "student.$.gotMarks" : result,
+                "student.$.participated" : true
+                }
         }
     )
 
