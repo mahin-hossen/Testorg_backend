@@ -20,7 +20,7 @@ const roomSchema = new mongoose.Schema({
         correct_answer:String,
         options:[],
         question_type:String,
-        q_id:Number    
+        q_id:String    
     }],
     student:{type:[]},
     totalStudent:{type:Number},
