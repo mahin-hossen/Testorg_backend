@@ -154,11 +154,14 @@ roomSchema.statics.calculateResult = async function(userID,roomID,neg,ans)
     else result = marks;
     return result;
 }
-roomSchema.statics.updateResult = async function(userID,roomID,result)
+roomSchema.statics.updateResult = async function(userID,roomID,result,room)
 {
     //in room collection's student array
     console.log("userID",userID,"roomID",roomID)
-
+    let sumMarks = room.sumMarks+result
+    let maxMarks = Math.max(result,room.maxMarks)
+    let minMarks = Math.min(result,room.minMarks)
+    
     const updateUserCollection = await userModel.updateOne({
         _id:userID,
         "myRooms.roomID":mongoose.Types.ObjectId(roomID)
@@ -178,12 +181,15 @@ roomSchema.statics.updateResult = async function(userID,roomID,result)
         {
             $set:{
                 "student.$.gotMarks" : result,
-                "student.$.participated" : true
+                "student.$.participated" : true,
+                "sumMarks" : sumMarks,
+                "maxMarks" : maxMarks,
+                "minMarks" : minMarks
                 },
             $inc:{totalParticipants:1}
         }
     )
-
+    console.log(updateRoomCollection)
 
     if(updateUserCollection.acknowledged && updateRoomCollection.acknowledged)
     {

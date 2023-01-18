@@ -95,8 +95,10 @@ const submitResultController = async(req,res) =>{
         const negMarks = req.body.negMarks
         const ans = req.body.studentAnswer
 
+        const room = await roomModel.roomInfo(roomID);
+
         const result = await roomModel.calculateResult(userID,roomID,negMarks,ans)
-        const confirmation = await roomModel.updateResult(userID,roomID,result)
+        const confirmation = await roomModel.updateResult(userID,roomID,result,room)
         if(confirmation)
         {
             res.status(201).json({msg:"Result Submitted Successfully"})
