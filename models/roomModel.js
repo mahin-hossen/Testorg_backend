@@ -3,7 +3,9 @@ const { update } = require("./userModel");
 const Schema = mongoose.Schema;
 const userModel = require("./userModel")
 const moment = require('moment-timezone');
-const dateBD = moment.tz(Date.now(), "Asia/Bangladesh");
+const dateBD = moment.tz(Date.now(), "Asia/Dhaka");
+const guess = moment.tz.guess();
+console.log(dateBD)
 
 const roomSchema = new mongoose.Schema({
     teacherName:{type:String},
@@ -33,14 +35,18 @@ const roomSchema = new mongoose.Schema({
 roomSchema.statics.createRoom = async function (userDoc,room){
     console.log("userDoc", userDoc)
     console.log("room",room)
+    let modifiedStartTime = new Date(room.startTime);
+    let modifiedEndTime = new Date(room.endTime);
+    modifiedStartTime.setHours(modifiedStartTime.getHours()-6)
+    modifiedEndTime.setHours(modifiedEndTime.getHours()-6)
     const newRoom = await this.create({ 
         teacherId : userDoc._id,
         teacherName : userDoc.username,
         courseName : room.courseName,
         questions : room.questions,
         negMarks : room.negMarks,
-        startTime : room.startTime,
-        endTime : room.endTime,
+        startTime : modifiedStartTime,
+        endTime : modifiedEndTime,
         createdAt : room.createdAt,
         totalMarks : room.totalMarks,
         totalParticipants:0,
