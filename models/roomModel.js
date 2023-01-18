@@ -4,8 +4,8 @@ const Schema = mongoose.Schema;
 const userModel = require("./userModel")
 const moment = require('moment-timezone');
 const dateBD = moment.tz(Date.now(), "Asia/Dhaka");
-const guess = moment.tz.guess();
-console.log(dateBD)
+// const guess = moment.tz.guess();
+// console.log(dateBD)
 
 const roomSchema = new mongoose.Schema({
     teacherName:{type:String},

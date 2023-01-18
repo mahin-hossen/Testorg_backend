@@ -43,12 +43,12 @@ const viewRoomController = async (req,res) =>{
                     throw Error("Room Doesnt exist!!!")
                 }
                 else{
-                    console.log(userDoc.teacherName);
-                    userDoc.teacherName = "AMI"
-                    console.log(userDoc.teacherName);
-                    userDoc.startTime = moment(userDoc.startTime).format('ddd-MMM-YY hh:mm:ss A');
-                    console.log(userDoc.startTime);
-                    userDoc.endTime = moment(userDoc.startTime).format('ddd-MMM-YY hh:mm:ss A');
+                    // console.log(userDoc.teacherName);
+                    // userDoc.teacherName = "AMI"
+                    // console.log(userDoc.teacherName);
+                    // userDoc.startTime = moment(userDoc.startTime).format('ddd-MMM-YY hh:mm:ss A');
+                    // console.log(userDoc.startTime);
+                    // userDoc.endTime = moment(userDoc.startTime).format('ddd-MMM-YY hh:mm:ss A');
                     // console.log("userDoc 2",userDoc);
                     res.status(200).json(userDoc);
                 }
