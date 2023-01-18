@@ -6,6 +6,7 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser")
 const userRoutes = require("./routes/userRoutes");
 const roomRoutes = require("./routes/roomRoutes")
+const dashboardRoutes = require("./routes/dashboardRoutes")
 
 //express app
 const app = express();
@@ -26,6 +27,7 @@ app.use((req, res, next) => {
 //routes
 app.use(userRoutes);
 app.use("/room",roomRoutes);
+app.use("/dashboard",dashboardRoutes);
 
 app.get("/", (req, res) => {
   res.json({ msg: "hello world" });

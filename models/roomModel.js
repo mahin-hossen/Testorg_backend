@@ -2,12 +2,18 @@ const mongoose = require("mongoose");
 const { update } = require("./userModel");
 const Schema = mongoose.Schema;
 const userModel = require("./userModel")
+const moment = require('moment-timezone');
+const dateBD = moment.tz(Date.now(), "Asia/Bangladesh");
 
 const roomSchema = new mongoose.Schema({
     teacherName:{type:String},
     teacherId:{type: mongoose.Schema.Types.ObjectId},
     courseName:{type: String},
     negMarks:{type:Boolean},
+    totalParticipants:{type:Number},
+    sumMarks:{type:Number},
+    maxMarks:{type:Number},
+    minMarks:{type:Number},
     questions:[{
         question:String,
         marks:Number,
@@ -18,9 +24,9 @@ const roomSchema = new mongoose.Schema({
     }],
     student:{type:[]},
     totalStudent:{type:Number},
-    startTime : {type: Date},
-    endTime : {type: Date},
-    createdAt : {type: Date},
+    startTime : {type: Date, default:dateBD},
+    endTime : {type: Date, default:dateBD},
+    createdAt : {type: Date, default:dateBD},
     totalMarks : {type: Number}
 })
 
@@ -37,6 +43,10 @@ roomSchema.statics.createRoom = async function (userDoc,room){
         endTime : room.endTime,
         createdAt : room.createdAt,
         totalMarks : room.totalMarks,
+        totalParticipants:0,
+        sumMarks:0,
+        maxMarks:0,
+        minMarks:0,
         totalStudent:0   
     })
     const result = await userModel.updateOne({_id:userDoc._id},{$push : {
@@ -113,9 +123,9 @@ roomSchema.statics.insertAsStudent = async function(user,room,roomID)
             "participated" : false,
             "totalMarks":room.totalMarks,
             "gotMarks":0
-        },$inc:{totalStudent:1}        
-    }})
-    console.log(updateStudents)
+        }        
+    },$inc:{totalStudent:1}})
+    // console.log(updateStudents)
     return updateStudents.acknowledged;
 
 }
@@ -163,7 +173,8 @@ roomSchema.statics.updateResult = async function(userID,roomID,result)
             $set:{
                 "student.$.gotMarks" : result,
                 "student.$.participated" : true
-                }
+                },
+            $inc:{totalParticipants:1}
         }
     )
 

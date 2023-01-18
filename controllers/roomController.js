@@ -2,6 +2,7 @@ const jwt = require("jsonwebtoken");
 const userModel = require("../models/userModel")
 const roomModel = require("../models/roomModel")
 const ObjectId = require("mongoose").Types.ObjectId
+const moment = require("moment-timezone");
 
 const addRoomController = async (req,res) => {
     try
@@ -42,7 +43,13 @@ const viewRoomController = async (req,res) =>{
                     throw Error("Room Doesnt exist!!!")
                 }
                 else{
-                    console.log(userDoc.questions)
+                    console.log(userDoc.teacherName);
+                    userDoc.teacherName = "AMI"
+                    console.log(userDoc.teacherName);
+                    userDoc.startTime = moment(userDoc.startTime).format('ddd-MMM-YY hh:mm:ss A');
+                    console.log(userDoc.startTime);
+                    userDoc.endTime = moment(userDoc.startTime).format('ddd-MMM-YY hh:mm:ss A');
+                    // console.log("userDoc 2",userDoc);
                     res.status(200).json(userDoc);
                 }
             })
@@ -63,6 +70,7 @@ const roomJoinController = async (req,res) =>{
         console.log("roomID",roomID,"userID", userID)
         //getting roomInfo
         const room = await roomModel.roomInfo(req.body.roomCode);
+        console.log("room",room)
         //getting userInfo
         const user = await userModel.userInfo(res.locals.userID);  
         if(userID===room.teacherId.toString())
