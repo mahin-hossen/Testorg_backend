@@ -73,7 +73,7 @@ const verifyUser = async (req, res) => {
     await userModel.findOneAndUpdate({ _id }, { isVerified: true });
 
     // res.status(201).json({ msg: "Your email is verified successfully" });
-    res.redirect(`https://${process.env.FRONTEND_URL}`);
+    res.redirect(`https://${process.env.FRONTEND_URL}/confirmed`);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
