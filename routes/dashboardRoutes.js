@@ -5,16 +5,13 @@ const router = Router();
 const {requireAuth} = require("../middlewares/authJWT")
 
 //controller functions
-// const {
-//   signupUser,
-//   loginUser,
-//   logoutUser,
-//   verifyUser,
-//   resendMail,
-// } = require("../controllers/userController");
-const {examdata} = require("../controllers/dashboardController")
-//signup
-router.post("/examdata",requireAuth,examdata);
+const{
+    examdata
+} = require("../controllers/dashboardController")
+const {examdataController,reportController} = require("../controllers/dashboardController")
+
+router.post("/examdata",requireAuth,examdataController);
+router.post("/report",requireAuth,reportController);
 
 
 module.exports = router;

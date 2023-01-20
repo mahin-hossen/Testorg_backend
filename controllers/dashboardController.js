@@ -1,11 +1,45 @@
 const roomModel = require("../models/roomModel")
 
-const examdata = async(req,res)=>{
+const examdataController = async(req,res)=>{
     try{
-
-    }catch{
-
+        const userID = res.locals.userID
+        const data = await roomModel.examdata(userID);
+        let result = []
+        data.forEach(elem => {
+            let response = singleRoomData(elem);
+            result.push(response)
+        });
+        res.status(200).json(result)
+    }catch(error){
+        res.status(400).json({ error: error.message });
     }
 }
 
-module.exports = {examdata}
+const reportController = async(req,res)=>{
+    try{        
+        const roomID = req.body.roomID;
+        const result = await roomModel.roomInfo(roomID);
+        let response = {
+            "teacherName" : result.teacherName,
+            "courseName" : result.courseName,
+            "students" : result.student
+        }
+        res.status(200).json(response)
+    }catch(error){
+        res.status(400).json({ error: error.message });
+    }
+}
+function singleRoomData(data)
+{
+    let obj = {
+        "courseName" : data.courseName,
+        "maxMarks" : data.maxMarks,
+        "minMarks" : data.minMarks,
+        "totalStudent" : data.totalStudent,
+        "totalParticipants" : data.totalParticipants,
+        "meanMarks" : data.maxMarks/data.totalParticipants        
+    }
+    return obj
+}
+
+module.exports = {examdataController,reportController}

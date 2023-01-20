@@ -3,6 +3,7 @@ const { update } = require("./userModel");
 const Schema = mongoose.Schema;
 const userModel = require("./userModel")
 const moment = require('moment-timezone');
+const { createTestAccount } = require("nodemailer");
 const dateBD = moment.tz(Date.now(), "Asia/Dhaka");
 // const guess = moment.tz.guess();
 // console.log(dateBD)
@@ -198,4 +199,12 @@ roomSchema.statics.updateResult = async function(userID,roomID,result,room)
     return false;
 
 }
+
+roomSchema.statics.examdata = async function(userID)
+{
+    const currTime = new Date(Date.now());
+    const data = await this.find({teacherId:mongoose.Types.ObjectId(userID),endTime:{$lte:currTime}}).sort({endTime:1}).limit(3)
+    return data;
+}
+
 module.exports = mongoose.model("Room",roomSchema);
