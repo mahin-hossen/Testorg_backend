@@ -50,6 +50,7 @@ userSchema.statics.signup = async function (
   email,
   password
 ) {
+  console.log(this)
   // console.log(isVerified, usertype, username, email, password);
   //validation
   if (!email || !password || !usertype || !username) {

@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const { update } = require("./userModel");
 const Schema = mongoose.Schema;
 const userModel = require("./userModel")
+const resultModel = require("./resultModel")
 const moment = require('moment-timezone');
 const { createTestAccount } = require("nodemailer");
 const dateBD = moment.tz(Date.now(), "Asia/Dhaka");
@@ -112,7 +113,8 @@ roomSchema.statics.addToMyRoom = async function(userID,room,roomID)
                 "CreatedAt" : room.createdAt,
                 "participated" : false,
                 "totalMarks":room.totalMarks,
-                "gotMarks":0
+                "gotMarks":0,
+                "resultID":mongoose.Types.ObjectId()
             }
             
         },$inc:{totalRooms:1}//increment totalrooms by 1
@@ -155,14 +157,17 @@ roomSchema.statics.calculateResult = async function(userID,roomID,neg,ans)
     else result = marks;
     return result;
 }
-roomSchema.statics.updateResult = async function(userID,roomID,result,room)
+roomSchema.statics.updateResult = async function(userID,roomID,result,room,ans)
 {
-    //in room collection's student array
     console.log("userID",userID,"roomID",roomID)
     let sumMarks = room.sumMarks+result
     let maxMarks = Math.max(result,room.maxMarks)
     let minMarks = Math.min(result,room.minMarks)
-    
+
+    //posting in result collection
+    const postResult = await resultModel.postResult(result,ans,room)
+
+    //in room collection's student array    
     const updateUserCollection = await userModel.updateOne({
         _id:userID,
         "myRooms.roomID":mongoose.Types.ObjectId(roomID)
@@ -170,6 +175,7 @@ roomSchema.statics.updateResult = async function(userID,roomID,result,room)
         {
             $set:{
                 "myRooms.$.gotMarks" : result,
+                "myRooms.$.resultID" : postResult._id,
                 "myRooms.$.participated" : true
                 }
         }
@@ -181,6 +187,7 @@ roomSchema.statics.updateResult = async function(userID,roomID,result,room)
         },
         {
             $set:{
+                "student.$.resultID" : postResult._id,
                 "student.$.gotMarks" : result,
                 "student.$.participated" : true,
                 "sumMarks" : sumMarks,

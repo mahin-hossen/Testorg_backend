@@ -66,6 +66,7 @@ const roomJoinController = async (req,res) =>{
         console.log("room",room)
         //getting userInfo
         const user = await userModel.userInfo(res.locals.userID);  
+        
         if(userID===room.teacherId.toString())
         {   
             throw Error("You are already Teacher of this room")
@@ -98,7 +99,7 @@ const submitResultController = async(req,res) =>{
         const room = await roomModel.roomInfo(roomID);
 
         const result = await roomModel.calculateResult(userID,roomID,negMarks,ans)
-        const confirmation = await roomModel.updateResult(userID,roomID,result,room)
+        const confirmation = await roomModel.updateResult(userID,roomID,result,room,ans)
         if(confirmation)
         {
             res.status(201).json({msg:"Result Submitted Successfully"})
