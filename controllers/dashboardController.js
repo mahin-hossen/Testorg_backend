@@ -46,15 +46,6 @@ function singleRoomData(data)
         "startTime":data.startTime,
         "endTime":data.endTime,
         "createdAt":data.createdAt
-        /*
-        //examdata
-        totalStudents:
-        roomCode:   
-        badd [startTime:
-        //student
-        name,email]
-        */    
-          
     }
     return obj
 }

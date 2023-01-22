@@ -43,7 +43,7 @@ roomSchema.statics.createRoom = async function (userDoc,room){
     let modifiedCreatedAt = new Date(room.createdAt)
     modifiedStartTime.setHours(modifiedStartTime.getHours()-6)
     modifiedEndTime.setHours(modifiedEndTime.getHours()-6)
-    modifiedCreatedAt.setHours(modifiedCreatedAt.getHours()-6)
+    modifiedCreatedAt.setHours(modifiedCreatedAt.getHours())
 
     const newRoom = await this.create({ 
         teacherId : userDoc._id,

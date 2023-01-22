@@ -6,8 +6,7 @@ const resultSchema = new mongoose.Schema({
     minMarks:{type:Number}
 })
 resultSchema.statics.postResult = async function(result,ans,room) 
-{
-    
+{    
     const response = await this.create({
         gotMarks : result,
         studentSubmission : ans,
@@ -17,4 +16,9 @@ resultSchema.statics.postResult = async function(result,ans,room)
     console.log(response._id)
     return response;
 }
+resultSchema.statics.getResult = async function(resultID)
+{
+    const result = await 
+}
+
 module.exports = mongoose.model("Result",resultSchema);

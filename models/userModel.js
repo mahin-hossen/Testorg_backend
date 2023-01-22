@@ -119,7 +119,7 @@ userSchema.statics.userInfo = async function(userID)
 userSchema.statics.getResultID = async function(userID,roomID)
 {
   const id = await this.find({_id:userID,"myRooms.roomID":mongoose.Types.ObjectId(roomID)},{"myRooms.resultID.$":1})
-  console.log("id",id)
+  // console.log("id",id)
   return id.resultID
 }
 userSchema.statics.userExists = async function(id)

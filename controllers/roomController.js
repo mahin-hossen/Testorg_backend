@@ -3,6 +3,7 @@ const userModel = require("../models/userModel")
 const roomModel = require("../models/roomModel")
 const ObjectId = require("mongoose").Types.ObjectId
 const moment = require("moment-timezone");
+const resultModel = require("../models/resultModel");
 
 const addRoomController = async (req,res) => {
     try
@@ -117,6 +118,7 @@ const getResultController = async(req,res) =>{
         const roomID = req.body.roomID
     
         const resultID = await userModel.getResultID(userID,roomID)
+        const result = await resultModel.getResult(resultID)
         console.log("resultID",resultID)
     }catch(error)
     {
