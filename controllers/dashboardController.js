@@ -31,13 +31,30 @@ const reportController = async(req,res)=>{
 }
 function singleRoomData(data)
 {
+    console.log("elem",data)
     let obj = {
+        "teacherName" : data.teacherName,
         "courseName" : data.courseName,
+        "roomCode" : data._id,
+        "negMarks" : data.negMarks,
         "maxMarks" : data.maxMarks,
         "minMarks" : data.minMarks,
         "totalStudent" : data.totalStudent,
         "totalParticipants" : data.totalParticipants,
-        "meanMarks" : data.maxMarks/data.totalParticipants        
+        "meanMarks" : data.maxMarks/data.totalParticipants,
+        "students" : data.student,
+        "startTime":data.startTime,
+        "endTime":data.endTime,
+        "createdAt":data.createdAt
+        /*
+        //examdata
+        totalStudents:
+        roomCode:   
+        badd [startTime:
+        //student
+        name,email]
+        */    
+          
     }
     return obj
 }

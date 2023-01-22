@@ -8,7 +8,7 @@ const addRoomController = async (req,res) => {
     try
     {
         userModel.findById(res.locals.userID, async function(err,userDoc){
-            console.log(userDoc)
+            // console.log(userDoc)
             const response = await roomModel.createRoom(userDoc,req.body)
             if(response[0])
                 res.status(201).json({roomCode:response[1]})
@@ -111,4 +111,17 @@ const submitResultController = async(req,res) =>{
     }
 }
 
-module.exports = {addRoomController, roomListController, viewRoomController, roomJoinController, submitResultController}
+const getResultController = async(req,res) =>{
+    try{
+        const userID = res.locals.userID
+        const roomID = req.body.roomID
+    
+        const resultID = await userModel.getResultID(userID,roomID)
+        console.log("resultID",resultID)
+    }catch(error)
+    {
+        res.status(400).json({ error: error.message });
+    }
+
+}
+module.exports = {addRoomController, roomListController, viewRoomController, roomJoinController, submitResultController, getResultController}

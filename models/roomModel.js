@@ -37,10 +37,14 @@ const roomSchema = new mongoose.Schema({
 roomSchema.statics.createRoom = async function (userDoc,room){
     console.log("userDoc", userDoc)
     console.log("room",room)
+
     let modifiedStartTime = new Date(room.startTime);
     let modifiedEndTime = new Date(room.endTime);
+    let modifiedCreatedAt = new Date(room.createdAt)
     modifiedStartTime.setHours(modifiedStartTime.getHours()-6)
     modifiedEndTime.setHours(modifiedEndTime.getHours()-6)
+    modifiedCreatedAt.setHours(modifiedCreatedAt.getHours()-6)
+
     const newRoom = await this.create({ 
         teacherId : userDoc._id,
         teacherName : userDoc.username,
@@ -49,7 +53,7 @@ roomSchema.statics.createRoom = async function (userDoc,room){
         negMarks : room.negMarks,
         startTime : modifiedStartTime,
         endTime : modifiedEndTime,
-        createdAt : room.createdAt,
+        createdAt : modifiedCreatedAt,
         totalMarks : room.totalMarks,
         totalParticipants:0,
         sumMarks:0,
@@ -213,5 +217,6 @@ roomSchema.statics.examdata = async function(userID)
     const data = await this.find({teacherId:mongoose.Types.ObjectId(userID),endTime:{$lte:currTime}}).sort({endTime:1}).limit(3)
     return data;
 }
+
 
 module.exports = mongoose.model("Room",roomSchema);

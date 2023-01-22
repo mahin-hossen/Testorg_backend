@@ -115,13 +115,18 @@ userSchema.statics.userInfo = async function(userID)
   const user = await this.findOne({_id:userID});
   return user;
 }
-// userSchema.statics.userExists = async function(id)
-// {
-//   console.log("dukse")
-//   const exist = await this.find({_id:id})
-//   console.log("exist",exist)
-//   return exist
-// }
+
+userSchema.statics.getResultID = async function(userID,roomID)
+{
+  const id = await this.find({_id:userID,"myRooms.roomID":mongoose.Types.ObjectId(roomID)},{"myRooms.resultID.$":1})
+  console.log("id",id)
+  return id.resultID
+}
+userSchema.statics.userExists = async function(id)
+{
+  const user = await this.find({_id:id})
+  return user
+}
 module.exports = mongoose.model("User", userSchema);
 // const userModel = mongoose.model("User", userSchema);
 // module.exports = userModel;
