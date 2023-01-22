@@ -38,12 +38,14 @@ const viewRoomController = async (req,res) =>{
     {
         if(ObjectId.isValid(req.body.roomID))
         {
+            // console.log(req.body.roomID)
             roomModel.findById(req.body.roomID, async function(err,userDoc){
                 if(err)
                 {
                     throw Error("Room Doesnt exist!!!")
                 }
                 else{
+                    if(!userDoc) throw Error("Room Doesnt exist!!!")
                     res.status(200).json(userDoc);
                 }
             })

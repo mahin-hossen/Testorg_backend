@@ -18,6 +18,7 @@ const requireAuth = async (req, res, next) => {
         {
           throw Error("User doesnt exists!!!")
         } 
+        // console.log("user",user)
         res.locals.userID = decodedToken._id;
         next();
       }
