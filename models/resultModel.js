@@ -16,9 +16,9 @@ resultSchema.statics.postResult = async function(result,ans,room)
     console.log(response._id)
     return response;
 }
-resultSchema.statics.getResult = async function(resultID)
-{
-    // const result = await 
-}
+// resultSchema.statics.getResult = async function(resultID)
+// {
+//     // const result = await 
+// }
 
 module.exports = mongoose.model("Result",resultSchema);

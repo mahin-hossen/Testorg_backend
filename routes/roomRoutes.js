@@ -10,8 +10,10 @@ const { addRoomController, roomListController, viewRoomController, roomJoinContr
 router.post("/add-room",requireAuth, addRoomController);
 router.post("/my-room",requireAuth, roomListController);
 router.post("/view-room",requireAuth, viewRoomController);
+router.post("/get-question",viewRoomController);
 router.post("/join-room",requireAuth,roomJoinController);
 router.post("/submit-result",requireAuth,submitResultController);
+
 // router.post("/get-result",requireAuth,getResultController);
 
 module.exports = router;

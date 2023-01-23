@@ -50,4 +50,19 @@ function singleRoomData(data)
     return obj
 }
 
+function calculateResult(userID, roomID, neg, ans) {
+    let negMarks = 0;
+    let marks = 0;
+    let result = 0;
+    ans.forEach((qid) => {
+      if (qid.correct_answer === qid.student_answer) {
+        marks += Number(qid.marks);
+      } else negMarks += Number(qid.marks);
+    });
+    if (neg) {
+      result = Math.max(0, marks - negMarks);
+    } else result = marks;
+    return result;
+  };
+
 module.exports = {examdataController,reportController}

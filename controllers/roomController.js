@@ -39,14 +39,20 @@ const viewRoomController = async (req,res) =>{
         if(ObjectId.isValid(req.body.roomID))
         {
             // console.log(req.body.roomID)
-            roomModel.findById(req.body.roomID, async function(err,userDoc){
+            roomModel.findById(req.body.roomID, async function(err,roomDoc){
                 if(err)
                 {
                     throw Error("Room Doesnt exist!!!")
                 }
                 else{
-                    if(!userDoc) throw Error("Room Doesnt exist!!!")
-                    res.status(200).json(userDoc);
+                    if(!roomDoc) throw Error("Room Doesnt exist!!!")
+
+                    if(roomDoc.category)
+                    {
+                        const question = generateQuestion(roomDoc.easyType,roomDoc.mediumType,roomDoc.hardType,roomDoc.questions)
+                        roomDoc.questions = question
+                    }
+                    res.status(200).json(roomDoc);
                 }
             })
         }
@@ -101,7 +107,7 @@ const submitResultController = async(req,res) =>{
 
         const room = await roomModel.roomInfo(roomID);
 
-        const result = await roomModel.calculateResult(userID,roomID,negMarks,ans)
+        const result = calculateResult(negMarks,ans)
         const confirmation = await roomModel.updateResult(userID,roomID,result,room,ans)
         if(confirmation)
         {
@@ -127,5 +133,62 @@ const getResultController = async(req,res) =>{
         res.status(400).json({ error: error.message });
     }
 
+}
+
+function calculateResult(neg, ans) {
+      let negMarks = 0;
+      let marks = 0;
+      let result = 0;
+      ans.forEach((qid) => {
+        if (qid.correct_answer === qid.student_answer) {
+          marks += Number(qid.marks);
+        } else negMarks += Number(qid.marks);
+      });
+      if (neg) {
+        result = Math.max(0, marks - negMarks);
+      } else result = marks;
+      console.log(result)
+      return result;
+};
+function generateQuestion(easy,medium,hard,arr)
+{
+    //spliting category
+    let hardQ = [], easyQ = [], mediumQ =[]
+    let finalQ = []
+    arr.forEach(element => {
+        if(element.category==="hard")   hardQ.push(element)
+        if(element.category==="medium")    mediumQ.push(element)
+        if(element.category==="easy")    easyQ.push(element)
+    });
+
+    //random questions
+
+    //hard
+    while(hard--)
+    {
+        let num = getRandom(hardQ.length-1)        
+        finalQ.push(hardQ[num])
+        hardQ.splice(num,1)
+    }
+    //medium
+    while(medium--)
+    {
+        let num = getRandom(mediumQ.length-1)        
+        finalQ.push(mediumQ[num])
+        mediumQ.splice(num,1)
+    }
+    //easy
+    while(easy--)
+    {
+        let num = getRandom(easyQ.length-1)        
+        finalQ.push(easyQ[num])
+        easyQ.splice(num,1)
+    }
+    return finalQ
+}
+function getRandom(limit)
+{
+    let number = Math.floor(Math.random() *limit )
+    return number
 }
 module.exports = {addRoomController, roomListController, viewRoomController, roomJoinController, submitResultController, getResultController}

@@ -21,6 +21,7 @@ const roomSchema = new mongoose.Schema({
   easyType: { type: Number },
   mediumType: { type: Number },
   hardType: { type: Number },
+  category : {type:Boolean},
   questions: [
     {
       question: String,
@@ -41,8 +42,8 @@ const roomSchema = new mongoose.Schema({
 });
 
 roomSchema.statics.createRoom = async function (userDoc, room) {
-  console.log("userDoc", userDoc);
-  console.log("room", room);
+  // console.log("userDoc", userDoc);
+  // console.log("room", room);
 
   let modifiedStartTime = new Date(room.startTime);
   let modifiedEndTime = new Date(room.endTime);
@@ -61,11 +62,15 @@ roomSchema.statics.createRoom = async function (userDoc, room) {
     endTime: modifiedEndTime,
     createdAt: modifiedCreatedAt,
     totalMarks: room.totalMarks,
+    category:room.category,
     totalParticipants: 0,
     sumMarks: 0,
     maxMarks: 0,
     minMarks: 0,
     totalStudent: 0,
+    easyType: room.easyType,
+    mediumType: room.mediumType,
+    hardType: room.hardType
   });
   const result = await userModel.updateOne(
     { _id: userDoc._id },
@@ -154,20 +159,20 @@ roomSchema.statics.insertAsStudent = async function (user, room, roomID) {
   // console.log(updateStudents)
   return updateStudents.acknowledged;
 };
-roomSchema.statics.calculateResult = async function (userID, roomID, neg, ans) {
-  let negMarks = 0;
-  let marks = 0;
-  let result = 0;
-  ans.forEach((qid) => {
-    if (qid.correct_answer === qid.student_answer) {
-      marks += Number(qid.marks);
-    } else negMarks += Number(qid.marks);
-  });
-  if (neg) {
-    result = Math.max(0, marks - negMarks);
-  } else result = marks;
-  return result;
-};
+// roomSchema.statics.calculateResult = async function (userID, roomID, neg, ans) {
+//   let negMarks = 0;
+//   let marks = 0;
+//   let result = 0;
+//   ans.forEach((qid) => {
+//     if (qid.correct_answer === qid.student_answer) {
+//       marks += Number(qid.marks);
+//     } else negMarks += Number(qid.marks);
+//   });
+//   if (neg) {
+//     result = Math.max(0, marks - negMarks);
+//   } else result = marks;
+//   return result;
+// };
 roomSchema.statics.updateResult = async function (
   userID,
   roomID,
