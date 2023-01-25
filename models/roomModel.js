@@ -235,7 +235,6 @@ roomSchema.statics.examdata = async function (userID) {
     endTime: { $lte: currTime },
   })
     .sort({ endTime: 1 })
-    .limit(3);
   return data;
 };
 
