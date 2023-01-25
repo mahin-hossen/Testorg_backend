@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken");
+const mongoose = require("mongoose");
 const userModel = require("../models/userModel")
 const roomModel = require("../models/roomModel")
 const ObjectId = require("mongoose").Types.ObjectId
@@ -10,7 +11,17 @@ const addRoomController = async (req,res) => {
     {
         userModel.findById(res.locals.userID, async function(err,userDoc){
             // console.log(userDoc)
-            const response = await roomModel.createRoom(userDoc,req.body)
+            // console.log(req.body)
+            let room = req.body
+
+            if(room.category)
+            {                
+              room.totalMarks = room.easyType*room.easyMarks+room.hardType*room.hardMarks+room.mediumType*room.mediumMarks
+              
+              //inserting marks to array
+              room.questions = insertMarks(room.questions,room.easyMarks,room.mediumMarks,room.hardMarks)
+            }        
+            const response = await roomModel.createRoom(userDoc,room)
             if(response[0])
                 res.status(201).json({roomCode:response[1]})
             else
@@ -83,11 +94,20 @@ const roomJoinController = async (req,res) =>{
         if(!room)   throw Error("Room Doesn't exists!!!")
         else
         {
-            //updating users myroom
-            const updateMyRooms = await roomModel.addToMyRoom(userID,room,roomID);
+            //If already joined
+            const roomExist = await userModel
+            .findOne({ _id: userID })
+            .elemMatch("myRooms", { roomID: mongoose.Types.ObjectId(roomID) });
+            if (roomExist) throw Error("You have already joined this room");
+
+            //creating resultID            
+            const resultID = await resultModel.createResultID(userID,roomID,room.totalMarks)
+
+            //updating users myroom 
+            const updateMyRooms = await roomModel.addToMyRoom(userID,room,resultID);
 
             //inserting as student in roomModel
-            const asStudent = await roomModel.insertAsStudent(user,room,roomID);
+            const asStudent = await roomModel.insertAsStudent(user,room,roomID,resultID);            
 
             if(updateMyRooms && asStudent) res.status(201).json({msg:"You have Successfully joined!!!"})        
         }
@@ -97,7 +117,17 @@ const roomJoinController = async (req,res) =>{
     }
     
 }
+const roomInfoController = async(req,res) =>
+{
+    try
+    {
+        const room = await roomModel.roomInfo(req.body.roomID);
+        res.status(200).json(room);
 
+    }catch(error){
+        res.status(400).json({ error: error.message });
+    }
+}
 const submitResultController = async(req,res) =>{
     try{
         const userID = res.locals.userID
@@ -119,36 +149,64 @@ const submitResultController = async(req,res) =>{
         res.status(400).json({error:error.message})
     }
 }
+// const getResultController = async(req,res) =>{
+//     try{
+//         const userID = res.locals.userID
+//         const roomID = req.body.roomID
+    
+//         const resultID = await userModel.getResultID(userID,roomID)
+//         const result = await resultModel.getResult(resultID)
+//         console.log("resultID",resultID)
+//     }catch(error)
+//     {
+//         res.status(400).json({ error: error.message });
+//     }
 
-const getResultController = async(req,res) =>{
+// }
+const submitAnsController = async(req,res)=>
+{
     try{
         const userID = res.locals.userID
         const roomID = req.body.roomID
-    
-        const resultID = await userModel.getResultID(userID,roomID)
-        const result = await resultModel.getResult(resultID)
-        console.log("resultID",resultID)
+        const negMarks = req.body.negMarks
+        const ans = req.body.studentAnswer
+        let response = await roomModel.findOne({_id:roomID,"student.studentID":ObjectId(userID)},{"student.$":1})
+        const resultID = response.student[0].resultID;
+
+        const room = await roomModel.roomInfo(roomID);
+        const resultDoc = await resultModel.findOne({_id:resultID})
+        // console.log("resultDoc",resultDoc)
+
+        const marks = calculateResult(negMarks,ans)
+        const confirmation = await roomModel.updateResult(userID,roomID,marks,room,ans,resultDoc)
+        if(confirmation)
+        {
+            res.status(201).json({msg:"Result Submitted Successfully"})
+        }
+        else throw Error ("Some error Occured on our end")
     }catch(error)
     {
-        res.status(400).json({ error: error.message });
+        res.status(400).json({error:error.message})
     }
-
 }
 
 function calculateResult(neg, ans) {
-      let negMarks = 0;
-      let marks = 0;
-      let result = 0;
-      ans.forEach((qid) => {
-        if (qid.correct_answer === qid.student_answer) {
-          marks += Number(qid.marks);
-        } else negMarks += Number(qid.marks);
-      });
-      if (neg) {
-        result = Math.max(0, marks - negMarks);
-      } else result = marks;
-      console.log(result)
-      return result;
+    if(ans.correct_answer==ans.student_answer)  return ans.marks
+    if(neg) return (0-ans.marks) //if neg On
+    return 0
+    //   let negMarks = 0;
+    //   let marks = 0;
+    //   let result = 0;
+    //   ans.forEach((qid) => {
+    //     if (qid.correct_answer === qid.student_answer) {
+    //       marks += Number(qid.marks);
+    //     } else negMarks += Number(qid.marks);
+    //   });
+    //   if (neg) {
+    //     result = Math.max(0, marks - negMarks);
+    //   } else result = marks;
+    //   console.log(result)
+    //   return result;
 };
 function generateQuestion(easy,medium,hard,arr)
 {
@@ -191,4 +249,13 @@ function getRandom(limit)
     let number = Math.floor(Math.random() *limit )
     return number
 }
-module.exports = {addRoomController, roomListController, viewRoomController, roomJoinController, submitResultController, getResultController}
+function insertMarks(room,easy,medium,hard)
+{
+    room.forEach(element =>{
+        if(element.category==="easy")   element.marks = easy
+        if(element.category==="medium") element.marks = medium
+        if(element.category==="hard")   element.marks = hard
+    })
+    return room
+}
+module.exports = {addRoomController, roomListController, viewRoomController, roomJoinController, submitResultController, roomInfoController,submitAnsController}

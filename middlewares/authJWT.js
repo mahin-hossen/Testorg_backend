@@ -16,7 +16,7 @@ const requireAuth = async (req, res, next) => {
         
         if(!Object.keys(user).length)
         {
-          throw Error("User doesnt exists!!!")
+          res.status(400).json({ error: "User doesnt exists!!!" });
         } 
         // console.log("user",user)
         res.locals.userID = decodedToken._id;

@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const { update } = require("./userModel");
+const ObjectId = require("mongoose").Types.ObjectId
 const Schema = mongoose.Schema;
 const userModel = require("./userModel");
 const resultModel = require("./resultModel");
@@ -39,6 +39,7 @@ const roomSchema = new mongoose.Schema({
   endTime: { type: Date, default: dateBD },
   createdAt: { type: Date, default: dateBD },
   totalMarks: { type: Number },
+  totalMarksOfExam: { type: Number }
 });
 
 roomSchema.statics.createRoom = async function (userDoc, room) {
@@ -62,6 +63,7 @@ roomSchema.statics.createRoom = async function (userDoc, room) {
     endTime: modifiedEndTime,
     createdAt: modifiedCreatedAt,
     totalMarks: room.totalMarks,
+    totalMarksOfExam: room.totalMarksOfExam,
     category:room.category,
     totalParticipants: 0,
     sumMarks: 0,
@@ -70,8 +72,12 @@ roomSchema.statics.createRoom = async function (userDoc, room) {
     totalStudent: 0,
     easyType: room.easyType,
     mediumType: room.mediumType,
-    hardType: room.hardType
+    hardType: room.hardType,
+    easyMarks:room.easyMarks,
+    mediumMarks:room.mediumMarks,
+    hardMarks:room.hardMarks
   });
+
   const result = await userModel.updateOne(
     { _id: userDoc._id },
     {
@@ -107,40 +113,33 @@ roomSchema.statics.roomInfo = async function (roomID) {
   } else throw Error("Room Doesn't exists!!!");
 };
 
-roomSchema.statics.addToMyRoom = async function (userID, room, roomID) {
-  //If already joined
-  const roomExist = await userModel
-    .findOne({ _id: userID })
-    .elemMatch("myRooms", { roomID: mongoose.Types.ObjectId(roomID) });
-  // console.log("roomExist",roomExist)
-
-  if (roomExist) throw Error("You have already joined this room"); //change
-  else {
-    //updating myrooms array for user
-    const updateMyRooms = await userModel.updateOne(
-      { _id: userID },
-      {
-        $push: {
-          myRooms: {
-            roomID: room._id,
-            teacherName: room.teacherName,
-            startTime: room.startTime,
-            endTime: room.endTime,
-            CourseName: room.courseName,
-            CreatedAt: room.createdAt,
-            participated: false,
-            totalMarks: room.totalMarks,
-            gotMarks: 0,
-            resultID: mongoose.Types.ObjectId(),
-          },
+roomSchema.statics.addToMyRoom = async function (userID, room, resultID) 
+{
+  //updating myrooms array for user
+  const updateMyRooms = await userModel.updateOne(
+    { _id: userID },
+    {
+      $push: {
+        myRooms: {
+          roomID: room._id,
+          resultID: ObjectId(resultID),
+          teacherName: room.teacherName,
+          startTime: room.startTime,
+          endTime: room.endTime,
+          CourseName: room.courseName,
+          CreatedAt: room.createdAt,
+          participated: false,
+          totalMarks: room.totalMarks,
+          gotMarks: 0
         },
-        $inc: { totalRooms: 1 }, //increment totalrooms by 1
-      }
-    );
-    return updateMyRooms.acknowledged;
-  }
+      },
+      $inc: { totalRooms: 1 }, //increment totalrooms by 1
+    }
+  );
+  return updateMyRooms.acknowledged;
+  
 };
-roomSchema.statics.insertAsStudent = async function (user, room, roomID) {
+roomSchema.statics.insertAsStudent = async function (user, room, roomID,resultID) {
   const updateStudents = await this.updateOne(
     { _id: roomID },
     {
@@ -148,6 +147,7 @@ roomSchema.statics.insertAsStudent = async function (user, room, roomID) {
         student: {
           studentName: user.username,
           studentID: user._id,
+          resultID:ObjectId(resultID),
           participated: false,
           totalMarks: room.totalMarks,
           gotMarks: 0,
@@ -178,17 +178,19 @@ roomSchema.statics.updateResult = async function (
   roomID,
   result,
   room,
-  ans
+  ans,
+  resultDoc
 ) {
   console.log("userID", userID, "roomID", roomID);
-  let sumMarks = room.sumMarks + result;
-  let maxMarks = Math.max(result, room.maxMarks);
-  let minMarks = Math.min(result, room.minMarks);
+
+  let gotMarks = resultDoc.gotMarks + result;
+  let maxMarks = Math.max(gotMarks, room.maxMarks);
+  let minMarks = Math.max(0,Math.min(gotMarks, room.minMarks))
 
   //posting in result collection
-  const postResult = await resultModel.postResult(result, ans, room);
+  const postResult = await resultModel.updateResult(userID,roomID,ans,gotMarks,maxMarks,minMarks);
 
-  //in room collection's student array
+  //in user collection's myRoom array
   const updateUserCollection = await userModel.updateOne(
     {
       _id: userID,
@@ -196,13 +198,13 @@ roomSchema.statics.updateResult = async function (
     },
     {
       $set: {
-        "myRooms.$.gotMarks": result,
-        "myRooms.$.resultID": postResult._id,
-        "myRooms.$.participated": true,
-      },
+        "myRooms.$.gotMarks": gotMarks,
+        "myRooms.$.participated": true
+      }
     }
   );
 
+  //in room collection's student array
   const updateRoomCollection = await this.updateOne(
     {
       _id: roomID,
@@ -210,17 +212,15 @@ roomSchema.statics.updateResult = async function (
     },
     {
       $set: {
-        "student.$.resultID": postResult._id,
-        "student.$.gotMarks": result,
+        "student.$.gotMarks": gotMarks,
         "student.$.participated": true,
-        sumMarks: sumMarks,
-        maxMarks: maxMarks,
-        minMarks: minMarks,
+        maxMarks:maxMarks,
+        minMarks:minMarks
       },
       $inc: { totalParticipants: 1 },
     }
   );
-  console.log(updateRoomCollection);
+  // console.log(updateRoomCollection);
 
   if (updateUserCollection.acknowledged && updateRoomCollection.acknowledged) {
     return true;

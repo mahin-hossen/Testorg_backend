@@ -30,9 +30,7 @@ const userSchema = new mongoose.Schema({
     default: false,
   },
   myRooms: {
-    type: [
-      
-    ],
+    type: [],
     totalMarks:0,
     participated:false
   },
