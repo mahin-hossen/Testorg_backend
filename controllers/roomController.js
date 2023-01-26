@@ -189,7 +189,26 @@ const submitAnsController = async(req,res)=>
         res.status(400).json({error:error.message})
     }
 }
+const studentResultController = async(req,res)=>
+{
+    try{
+        const roomID = req.body.roomID
+        const userID = res.locals.userID
+        let result = await resultModel.findOne({roomID:ObjectId(roomID),userID:ObjectId(userID)})
+        
+        res.json({
+            gotMarks:result.gotMarks,
+            maxMarks:result.maxMarks,
+            minMarks:result.minMarks,
+            totalMarks:result.totalMarks,
+            roomID:result.roomID,
+            questions:result.studentSubmission
+        });
+    }catch(error){
+        res.status(400).json({error:error.message})
+    }
 
+}
 function calculateResult(neg, ans) {
     if(ans.correct_answer==ans.student_answer)  return ans.marks
     if(neg) return (0-ans.marks) //if neg On
@@ -258,4 +277,4 @@ function insertMarks(room,easy,medium,hard)
     })
     return room
 }
-module.exports = {addRoomController, roomListController, viewRoomController, roomJoinController, submitResultController, roomInfoController,submitAnsController}
+module.exports = {addRoomController, roomListController, viewRoomController, roomJoinController, submitResultController, roomInfoController,submitAnsController,studentResultController}

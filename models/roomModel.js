@@ -220,7 +220,6 @@ roomSchema.statics.updateResult = async function (
       $inc: { totalParticipants: 1 },
     }
   );
-  // console.log(updateRoomCollection);
 
   if (updateUserCollection.acknowledged && updateRoomCollection.acknowledged) {
     return true;
