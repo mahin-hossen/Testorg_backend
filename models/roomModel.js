@@ -126,8 +126,8 @@ roomSchema.statics.addToMyRoom = async function (userID, room, resultID)
           teacherName: room.teacherName,
           startTime: room.startTime,
           endTime: room.endTime,
-          CourseName: room.courseName,
-          CreatedAt: room.createdAt,
+          courseName: room.courseName,
+          createdAt: room.createdAt,
           participated: false,
           totalMarks: room.totalMarks,
           gotMarks: 0
