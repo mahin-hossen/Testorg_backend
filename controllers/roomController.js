@@ -13,14 +13,16 @@ const addRoomController = async (req,res) => {
             // console.log(userDoc)
             // console.log(req.body)
             let room = req.body
-
+            // console.log("room",room)
             if(room.category)
             {                
               room.totalMarks = room.easyType*room.easyMarks+room.hardType*room.hardMarks+room.mediumType*room.mediumMarks
               
               //inserting marks to array
               room.questions = insertMarks(room.questions,room.easyMarks,room.mediumMarks,room.hardMarks)
-            }        
+            }       
+            // console.log("room",room)
+            // return false 
             const response = await roomModel.createRoom(userDoc,room)
             if(response[0])
                 res.status(201).json({roomCode:response[1]})
